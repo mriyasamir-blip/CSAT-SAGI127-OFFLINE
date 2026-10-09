@@ -1,0 +1,8 @@
+{
+  "name": "Remix CSAT Layanan SAGI Offline",
+  "description": "Aplikasi Survei Kepuasan Pelanggan (CSAT) Layanan SAGI Offline dengan pemindaian QR code meja, penilaian interaktif 5 dimensi layanan, dan dashboard analitik.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

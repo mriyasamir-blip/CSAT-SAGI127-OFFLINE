@@ -1,0 +1,66 @@
+{
+  "entities": {
+    "CSATResponse": {
+      "title": "CSATResponse",
+      "description": "Rekaman hasil survei kepuasan pelanggan layanan SAGI 127 walk-in",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID unik respons survei",
+          "maxLength": 64
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Waktu respons survei dalam format ISO string",
+          "maxLength": 50
+        },
+        "desk": {
+          "type": "string",
+          "description": "Nama meja atau loket pelayanan",
+          "maxLength": 100
+        },
+        "officerName": {
+          "type": "string",
+          "description": "Nama petugas customer service yang melayani",
+          "maxLength": 100
+        },
+        "serviceType": {
+          "type": "string",
+          "description": "Jenis layanan atau kebutuhan pelapor",
+          "maxLength": 150
+        },
+        "customerName": {
+          "type": "string",
+          "description": "Nama opsional pelapor",
+          "maxLength": 100
+        },
+        "customerPhone": {
+          "type": "string",
+          "description": "Nomor kontak opsional pelapor",
+          "maxLength": 30
+        },
+        "ratings": {
+          "type": "object",
+          "description": "Penilaian 5 dimensi mutu layanan (skala 1-5)"
+        },
+        "averageRating": {
+          "type": "number",
+          "description": "Rata-rata skor kepuasan dari 5 dimensi (1-5)"
+        },
+        "feedback": {
+          "type": "string",
+          "description": "Saran, kritik, atau ulasan tambahan dari pelapor",
+          "maxLength": 1000
+        }
+      },
+      "required": ["id", "createdAt", "desk", "serviceType", "ratings", "averageRating"]
+    }
+  },
+  "firestore": {
+    "/responses/{responseId}": {
+      "schema": "CSATResponse",
+      "description": "Koleksi data survei kepuasan pelanggan SAGI 127 yang tersinkronisasi secara real-time"
+    }
+  }
+}

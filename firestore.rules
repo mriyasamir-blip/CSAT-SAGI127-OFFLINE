@@ -1,0 +1,64 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function isValidRatings(r) {
+      return r is map
+        && r.keys().hasAll(['q1_keramahan', 'q2_kejelasan', 'q3_kecepatan', 'q4_profesionalisme', 'q5_kepuasan_umum'])
+        && r.keys().hasOnly(['q1_keramahan', 'q2_kejelasan', 'q3_kecepatan', 'q4_profesionalisme', 'q5_kepuasan_umum'])
+        && r.q1_keramahan is number && r.q1_keramahan >= 1 && r.q1_keramahan <= 5
+        && r.q2_kejelasan is number && r.q2_kejelasan >= 1 && r.q2_kejelasan <= 5
+        && r.q3_kecepatan is number && r.q3_kecepatan >= 1 && r.q3_kecepatan <= 5
+        && r.q4_profesionalisme is number && r.q4_profesionalisme >= 1 && r.q4_profesionalisme <= 5
+        && r.q5_kepuasan_umum is number && r.q5_kepuasan_umum >= 1 && r.q5_kepuasan_umum <= 5;
+    }
+
+    function isValidResponse(data) {
+      return data.keys().hasAll(['id', 'createdAt', 'desk', 'serviceType', 'ratings', 'averageRating'])
+        && data.keys().hasOnly(['id', 'createdAt', 'desk', 'officerName', 'serviceType', 'customerName', 'customerPhone', 'ratings', 'averageRating', 'feedback'])
+        && data.id is string && data.id.size() > 0 && data.id.size() <= 64
+        && data.createdAt is string && data.createdAt.size() > 0 && data.createdAt.size() <= 50
+        && data.desk is string && data.desk.size() > 0 && data.desk.size() <= 100
+        && data.serviceType is string && data.serviceType.size() > 0 && data.serviceType.size() <= 150
+        && (!('officerName' in data) || (data.officerName is string && data.officerName.size() <= 100))
+        && (!('customerName' in data) || (data.customerName is string && data.customerName.size() <= 100))
+        && (!('customerPhone' in data) || (data.customerPhone is string && data.customerPhone.size() <= 30))
+        && (!('feedback' in data) || (data.feedback is string && data.feedback.size() <= 1000))
+        && data.averageRating is number && data.averageRating >= 1 && data.averageRating <= 5
+        && isValidRatings(data.ratings);
+    }
+
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Connectivity test document
+    match /test/connection {
+      allow read: if true;
+    }
+
+    // CSAT Responses collection
+    match /responses/{responseId} {
+      // Allows real-time live monitoring on the admin dashboard
+      allow read: if true;
+
+      // Allows customers to submit survey response with strict payload validation
+      allow create: if isValidId(responseId) && isValidResponse(incoming());
+
+      // Allows clearing or removing data by officer
+      allow delete: if true;
+
+      // Update is forbidden to prevent tampering
+      allow update: if false;
+    }
+  }
+}
